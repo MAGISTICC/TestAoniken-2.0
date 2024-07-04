@@ -21,16 +21,16 @@ namespace WebAPI
 
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+
         public void ConfigureServices(IServiceCollection services)
         {
-            // Enable Cors
+
             services.AddCors(c =>
             {
                 c.AddPolicy("AllowOrigin", options => options.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
             });
 
-            // Json Serializer
+
             services.AddControllersWithViews()
                     .AddNewtonsoftJson(options =>
                     options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore
@@ -39,7 +39,7 @@ namespace WebAPI
 
             services.AddControllers();
 
-            // Add MySQL Connector as a service
+
             services.AddTransient<MySqlConnection>(_ => new MySqlConnection(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddSwaggerGen(c =>
@@ -48,7 +48,7 @@ namespace WebAPI
             });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
             if (env.IsDevelopment())
