@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TestAoniken.Models;
 using TestAoniken.Servicios;
@@ -9,9 +10,9 @@ namespace TestAoniken.Controllers
     [ApiController]
     public class PublicacionController : ControllerBase
     {
-        private readonly iPublicationService _publicacionService;
+        private readonly IPublicacionService _publicacionService;
 
-        public PublicacionController(iPublicationService publicacionService)
+        public PublicacionController(IPublicacionService publicacionService)
         {
             _publicacionService = publicacionService;
         }
@@ -19,15 +20,15 @@ namespace TestAoniken.Controllers
         [HttpGet("pendientes")]
         public async Task<IActionResult> ObtenerPublicacionesPendientes()
         {
-            var publicacionesPendientes = await _publicacionService.ObtenerPublicacionesPendientes();
+            var publicacionesPendientes = await _publicacionService.ObtenerPublicacionesPendientesAsync();
             return Ok(publicacionesPendientes);
         }
 
         [HttpPost("aprobar")]
         public async Task<IActionResult> AprobarPublicacion([FromBody] int idPublicacion)
         {
-            var resultado = await _publicacionService.AprobarPublicacion(idPublicacion);
-            if (!resultado)
+            var result = await _publicacionService.AprobarPublicacionAsync(idPublicacion);
+            if (!result)
             {
                 return NotFound();
             }
@@ -37,8 +38,8 @@ namespace TestAoniken.Controllers
         [HttpPost("rechazar")]
         public async Task<IActionResult> RechazarPublicacion([FromBody] int idPublicacion)
         {
-            var resultado = await _publicacionService.RechazarPublicacion(idPublicacion);
-            if (!resultado)
+            var result = await _publicacionService.RechazarPublicacionAsync(idPublicacion);
+            if (!result)
             {
                 return NotFound();
             }
@@ -48,8 +49,8 @@ namespace TestAoniken.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarPublicacion(int id, [FromBody] Publicacion publicacionActualizada)
         {
-            var resultado = await _publicacionService.ActualizarPublicacion(id, publicacionActualizada);
-            if (!resultado)
+            var result = await _publicacionService.ActualizarPublicacionAsync(id, publicacionActualizada);
+            if (!result)
             {
                 return NotFound();
             }
@@ -59,8 +60,8 @@ namespace TestAoniken.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarPublicacion(int id)
         {
-            var resultado = await _publicacionService.EliminarPublicacion(id);
-            if (!resultado)
+            var result = await _publicacionService.EliminarPublicacionAsync(id);
+            if (!result)
             {
                 return NotFound();
             }
