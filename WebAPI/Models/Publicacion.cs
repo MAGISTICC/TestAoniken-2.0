@@ -18,9 +18,9 @@ namespace TestAoniken.Models
         public string Contenido { get; set; }
 
         [JsonIgnore]
-        public int IdAutor { get; set; }
+        public int AutorId { get; set; }
 
-        [ForeignKey("IdAutor")]
+        [ForeignKey("AutorId")]
         public Usuario Autor { get; set; }
 
         public DateTime FechaEnvio { get; set; }

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -13,68 +14,108 @@ namespace TestAoniken.Servicios
 
         public PublicacionService(AppDbContext context)
         {
-            _context = context;
+            _context = context;  // DI del DbContext
         }
 
         public async Task<List<Publicacion>> ObtenerPublicacionesPendientesAsync()
         {
             return await _context.Publicaciones
-                .Include(p => p.Autor)
-                .Where(p => p.PendienteAprobacion)
-                .ToListAsync();
+                .Include(p => p.Autor)  // Carga explícita de la propiedad de navegación Autor
+                .Where(p => p.PendienteAprobacion)  // Filtrar las publicaciones pendientes de aprobación
+                .ToListAsync();  // Ejecutar la consulta y devolver una lista
         }
 
         public async Task<bool> AprobarPublicacionAsync(int idPublicacion)
         {
-            var publicacion = await _context.Publicaciones.FindAsync(idPublicacion);
-            if (publicacion == null)
+            if (idPublicacion <= 0)
             {
-                return false;
+                throw new ArgumentException("El ID de la publicación debe ser un número positivo.");
             }
 
-            publicacion.PendienteAprobacion = false;
-            await _context.SaveChangesAsync();
-            return true;
+            var publicacion = await _context.Publicaciones.FindAsync(idPublicacion);  // Buscar la publicación por su ID
+            if (publicacion == null)
+            {
+                return false;  // Si no se encuentra la publicación, retornar falso
+            }
+
+            if (!publicacion.PendienteAprobacion)
+            {
+                throw new InvalidOperationException("La publicación ya está aprobada.");
+            }
+
+            publicacion.PendienteAprobacion = false;  // Cambiar el estado de pendiente a aprobado
+            await _context.SaveChangesAsync();  // Guardar los cambios en la base de datos
+            return true;  // Retornar verdadero indicando que la operación fue exitosa
         }
 
         public async Task<bool> RechazarPublicacionAsync(int idPublicacion)
         {
-            var publicacion = await _context.Publicaciones.FindAsync(idPublicacion);
-            if (publicacion == null)
+            if (idPublicacion <= 0)
             {
-                return false;
+                throw new ArgumentException("El ID de la publicación debe ser un número positivo.");
             }
 
-            _context.Publicaciones.Remove(publicacion);
-            await _context.SaveChangesAsync();
-            return true;
+            var publicacion = await _context.Publicaciones.FindAsync(idPublicacion);  // Buscar la publicación por su ID
+            if (publicacion == null)
+            {
+                return false;  // Si no se encuentra la publicación, retornar falso
+            }
+
+            _context.Publicaciones.Remove(publicacion);  // Eliminar la publicación de la base de datos
+            await _context.SaveChangesAsync();  // Guardar los cambios en la base de datos
+            return true;  // Retornar verdadero indicando que la operación fue exitosa
         }
 
         public async Task<bool> ActualizarPublicacionAsync(int id, Publicacion publicacionActualizada)
         {
-            var publicacion = await _context.Publicaciones.FindAsync(id);
-            if (publicacion == null)
+            if (id <= 0)
             {
-                return false;
+                throw new ArgumentException("El ID de la publicación debe ser un número positivo.");
             }
 
-            publicacion.Titulo = publicacionActualizada.Titulo;
-            publicacion.Contenido = publicacionActualizada.Contenido;
-            await _context.SaveChangesAsync();
-            return true;
+            if (publicacionActualizada == null)
+            {
+                throw new ArgumentNullException(nameof(publicacionActualizada), "La publicación actualizada no puede ser nula.");
+            }
+
+            if (string.IsNullOrWhiteSpace(publicacionActualizada.Titulo))
+            {
+                throw new ArgumentException("El título de la publicación no puede estar vacío.");
+            }
+
+            if (string.IsNullOrWhiteSpace(publicacionActualizada.Contenido))
+            {
+                throw new ArgumentException("El contenido de la publicación no puede estar vacío.");
+            }
+
+            var publicacion = await _context.Publicaciones.FindAsync(id);  // Buscar la publicación por su ID
+            if (publicacion == null)
+            {
+                return false;  // Si no se encuentra la publicación, retornar falso
+            }
+
+            publicacion.Titulo = publicacionActualizada.Titulo;  // Actualizar el título de la publicación
+            publicacion.Contenido = publicacionActualizada.Contenido;  // Actualizar el contenido de la publicación
+            await _context.SaveChangesAsync();  // Guardar los cambios en la base de datos
+            return true;  // Retornar verdadero indicando que la operación fue exitosa
         }
 
         public async Task<bool> EliminarPublicacionAsync(int id)
         {
-            var publicacion = await _context.Publicaciones.FindAsync(id);
-            if (publicacion == null)
+            if (id <= 0)
             {
-                return false;
+                throw new ArgumentException("El ID de la publicación debe ser un número positivo.");
             }
 
-            _context.Publicaciones.Remove(publicacion);
-            await _context.SaveChangesAsync();
-            return true;
+            var publicacion = await _context.Publicaciones.FindAsync(id);  // Buscar la publicación por su ID
+            if (publicacion == null)
+            {
+                return false;  // Si no se encuentra la publicación, retornar falso
+            }
+
+            _context.Publicaciones.Remove(publicacion);  // Eliminar la publicación de la base de datos
+            await _context.SaveChangesAsync();  // Guardar los cambios en la base de datos
+            return true;  // Retornar verdadero indicando que la operación fue exitosa
         }
     }
 }
