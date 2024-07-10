@@ -1,17 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.Collections.Generic;
+
+#nullable disable
 
 namespace TestAoniken.Models
-
 {
-    public class Usuario
+    public partial class Usuario
     {
-        [Key]
+        public Usuario()
+        {
+            Publicaciones = new HashSet<Publicacion>();
+        }
+
         public int Id { get; set; }
-
-        [Required]
         public string Nombre { get; set; }
-
-        [Required]
         public string Rol { get; set; }
+
+        public virtual ICollection<Publicacion> Publicaciones { get; set; }
     }
 }

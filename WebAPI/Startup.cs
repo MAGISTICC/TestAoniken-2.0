@@ -21,7 +21,11 @@ public class Startup
     // Configuración de los servicios necesarios para la aplicación
     public void ConfigureServices(IServiceCollection services)
     {
-        services.AddControllers();
+        services.AddControllers()
+                .AddJsonOptions(options =>
+                {
+                    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
+                });
 
         // Configurar DbContext con SQL Server utilizando Entity Framework Core
         var connectionString = Configuration.GetConnectionString("DefaultConnection");
@@ -69,7 +73,7 @@ public class Startup
         app.UseSwagger();
         app.UseSwaggerUI(c =>
         {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "TestAoniken API V4");
+            c.SwaggerEndpoint("/swagger/v1/swagger.json", "TestAoniken API v1");
             c.RoutePrefix = string.Empty; // Configurar Swagger en la ruta raíz
         });
 
