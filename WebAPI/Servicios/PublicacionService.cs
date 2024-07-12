@@ -11,18 +11,21 @@ namespace TestAoniken.Servicios
     public class PublicacionService : IPublicacionService
     {
         private readonly AppDbContext _context;
+        private readonly IEmailService _emailService;
 
-        public PublicacionService(AppDbContext context)
+        public PublicacionService(AppDbContext context, IEmailService emailService)
         {
             _context = context;  // DI del DbContext
+            _emailService = emailService;  // DI del EmailService
         }
 
         public async Task<List<Publicacion>> ObtenerPublicacionesPendientesAsync()
         {
             return await _context.Publicaciones
-                .Include(p => p.Autor)  // Carga explícita de la propiedad de navegación Autor
-                .Where(p => p.PendienteAprobacion)  // Filtrar las publicaciones pendientes de aprobación
-                .ToListAsync();  // Ejecutar la consulta y devolver una lista
+                .AsNoTracking()
+                .Include(p => p.Autor)
+                .Where(p => p.PendienteAprobacion)
+                .ToListAsync();
         }
 
         public async Task<bool> AprobarPublicacionAsync(int idPublicacion)
@@ -45,6 +48,16 @@ namespace TestAoniken.Servicios
 
             publicacion.PendienteAprobacion = false;  // Cambiar el estado de pendiente a aprobado
             await _context.SaveChangesAsync();  // Guardar los cambios en la base de datos
+
+            // Enviar correo electrónico de notificación
+            var autor = await _context.Usuarios.FindAsync(publicacion.AutorId);
+            if (autor != null)
+            {
+                var subject = "Tu publicación ha sido aprobada";
+                var message = $"Hola {autor.Nombre},\n\nTu publicación '{publicacion.Titulo}' ha sido aprobada.";
+                await _emailService.SendEmailAsync(autor.Email, subject, message);
+            }
+
             return true;  // Retornar verdadero indicando que la operación fue exitosa
         }
 

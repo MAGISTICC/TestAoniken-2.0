@@ -23,44 +23,48 @@ namespace TestAoniken.Controllers
         {
             // Llama al método del servicio para obtener publicaciones pendientes
             var publicacionesPendientes = await _publicacionService.ObtenerPublicacionesPendientesAsync();
+
+            if (publicacionesPendientes == null || publicacionesPendientes.Count == 0)
+            {
+                return NotFound("No se encontraron publicaciones pendientes.");
+            }
+
             return Ok(publicacionesPendientes); // Retorna las publicaciones pendientes
         }
 
         // Endpoint para aprobar una publicación
-        [HttpPost("aprobar")]
-        public async Task<IActionResult> AprobarPublicacion([FromBody] int idPublicacion)
+        [HttpPut("aprobar/{id}")]
+        public async Task<IActionResult> AprobarPublicacion(int id)
         {
-            // Llama al método del servicio para aprobar una publicación con el ID dado
-            var result = await _publicacionService.AprobarPublicacionAsync(idPublicacion);
-            if (!result)
+            var resultado = await _publicacionService.AprobarPublicacionAsync(id);
+            if (resultado)
             {
-                return NotFound(); // Retorna 404 si la publicación no fue encontrada
+                return Ok(true);
             }
-            return Ok(); // Retorna 200 OK si la publicación fue aprobada correctamente
+            return NotFound();
         }
 
-        // Endpoint para rechazar una publicación
-        [HttpPost("rechazar")]
-        public async Task<IActionResult> RechazarPublicacion([FromBody] int idPublicacion)
+        // Endpoint para rechazar una publicación (Eliminar)
+        [HttpDelete("rechazar/{id}")]
+        public async Task<IActionResult> RechazarPublicacion(int id)
         {
-            // Llama al método del servicio para rechazar una publicación con el ID dado
-            var result = await _publicacionService.RechazarPublicacionAsync(idPublicacion);
-            if (!result)
+            var resultado = await _publicacionService.RechazarPublicacionAsync(id);
+            if (resultado)
             {
-                return NotFound(); // Retorna 404 si la publicación no fue encontrada
+                return Ok(true);
             }
-            return Ok(); // Retorna 200 OK si la publicación fue rechazada correctamente
+            return NotFound();
         }
 
         // Endpoint para actualizar una publicación
         [HttpPut("{id}")]
         public async Task<IActionResult> ActualizarPublicacion(int id, [FromBody] Publicacion publicacionActualizada)
         {
-            // Llama al método del servicio para actualizar una publicación con el ID dado
+            // Llama al método del servicio para actualizar una publicación con el ID
             var result = await _publicacionService.ActualizarPublicacionAsync(id, publicacionActualizada);
             if (!result)
             {
-                return NotFound(); // Retorna 404 si la publicación no fue encontrada
+                return NotFound(); // 404
             }
             return Ok(publicacionActualizada); // Retorna la publicación actualizada
         }
@@ -69,13 +73,13 @@ namespace TestAoniken.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> EliminarPublicacion(int id)
         {
-            // Llama al método del servicio para eliminar una publicación con el ID dado
+            // Llama al método del servicio (Eliminar) para eliminar una publicación con el ID dado
             var result = await _publicacionService.EliminarPublicacionAsync(id);
             if (!result)
             {
-                return NotFound(); // Retorna 404 si la publicación no fue encontrada
+                return NotFound();
             }
-            return Ok(); // Retorna 200 OK si la publicación fue eliminada correctamente
+            return Ok();
         }
     }
 }

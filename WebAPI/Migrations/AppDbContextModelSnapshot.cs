@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TestAoniken.Data;
 
-namespace WebAPI.Migrations
+namespace TestAoniken.Migrations
 {
     [DbContext(typeof(AppDbContext))]
     partial class AppDbContextModelSnapshot : ModelSnapshot
@@ -15,6 +15,7 @@ namespace WebAPI.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
+                .HasAnnotation("Relational:Collation", "Modern_Spanish_CI_AS")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("ProductVersion", "5.0.17")
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
@@ -45,7 +46,7 @@ namespace WebAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AutorId");
+                    b.HasIndex(new[] { "AutorId" }, "IX_Publicaciones_AutorId");
 
                     b.ToTable("Publicaciones");
                 });
@@ -56,6 +57,9 @@ namespace WebAPI.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<string>("Email")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
@@ -73,12 +77,17 @@ namespace WebAPI.Migrations
             modelBuilder.Entity("TestAoniken.Models.Publicacion", b =>
                 {
                     b.HasOne("TestAoniken.Models.Usuario", "Autor")
-                        .WithMany()
+                        .WithMany("Publicaciones")
                         .HasForeignKey("AutorId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Autor");
+                });
+
+            modelBuilder.Entity("TestAoniken.Models.Usuario", b =>
+                {
+                    b.Navigation("Publicaciones");
                 });
 #pragma warning restore 612, 618
         }

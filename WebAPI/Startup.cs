@@ -22,24 +22,24 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddControllers()
-                .AddJsonOptions(options =>
-                {
-                    options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.Preserve;
-                });
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles;
+            });
 
         // Configurar DbContext con SQL Server utilizando Entity Framework Core
         var connectionString = Configuration.GetConnectionString("DefaultConnection");
         services.AddDbContext<AppDbContext>(options =>
             options.UseSqlServer(connectionString));
 
+        services.AddScoped<IPublicacionService, PublicacionService>();
+        services.AddScoped<IEmailService, EmailService>(); // Mail Service +++++
+
         // Configurar servicios personalizados
         services.AddScoped<IPublicacionService, PublicacionService>();
 
         // Configurar Swagger para la documentación de la API
-        services.AddSwaggerGen(c =>
-        {
-            c.SwaggerDoc("v1", new OpenApiInfo { Title = "TestAoniken API", Version = "v1" });
-        });
+        services.AddSwaggerGen();
     }
 
     // Configuración del pipeline de la aplicación
@@ -49,6 +49,8 @@ public class Startup
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
+            app.UseSwagger();
+            app.UseSwaggerUI();
         }
         else
         {
@@ -68,14 +70,6 @@ public class Startup
 
         // Habilitar autorización
         app.UseAuthorization();
-
-        // Habilitar Swagger y Swagger UI para la documentación de la API
-        app.UseSwagger();
-        app.UseSwaggerUI(c =>
-        {
-            c.SwaggerEndpoint("/swagger/v1/swagger.json", "TestAoniken API v1");
-            c.RoutePrefix = string.Empty; // Configurar Swagger en la ruta raíz
-        });
 
         // Configurar los endpoints para los controladores
         app.UseEndpoints(endpoints =>
