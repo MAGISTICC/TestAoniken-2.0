@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using TestAoniken.Models;
 using TestAoniken.Servicios;
@@ -11,75 +12,74 @@ namespace TestAoniken.Controllers
     {
         private readonly IPublicacionService _publicacionService;
 
-        // Constructor que recibe una instancia de IPublicacionService
         public PublicacionController(IPublicacionService publicacionService)
         {
             _publicacionService = publicacionService;
         }
 
-        // Endpoint para obtener publicaciones pendientes
+        // GET: api/Publicacion/pendientes
         [HttpGet("pendientes")]
         public async Task<IActionResult> ObtenerPublicacionesPendientes()
         {
-            // Llama al método del servicio para obtener publicaciones pendientes
             var publicacionesPendientes = await _publicacionService.ObtenerPublicacionesPendientesAsync();
-
             if (publicacionesPendientes == null || publicacionesPendientes.Count == 0)
             {
-                return NotFound("No se encontraron publicaciones pendientes.");
+                return NotFound("No hay publicaciones pendientes.");
             }
-
-            return Ok(publicacionesPendientes); // Retorna las publicaciones pendientes
+            return Ok(publicacionesPendientes);
         }
 
-        // Endpoint para aprobar una publicación
-        [HttpPut("aprobar/{id}")]
+        // POST: api/Publicacion/aprobar/{id}
+        [HttpPost("aprobar/{id}")]
         public async Task<IActionResult> AprobarPublicacion(int id)
         {
-            var resultado = await _publicacionService.AprobarPublicacionAsync(id);
-            if (resultado)
+            var result = await _publicacionService.AprobarPublicacionAsync(id);
+            if (result)
             {
-                return Ok(true);
+                return Ok("Publicación aprobada con éxito.");
             }
-            return NotFound();
+            return BadRequest("Error al aprobar la publicación.");
         }
 
-        // Endpoint para rechazar una publicación (Eliminar)
-        [HttpDelete("rechazar/{id}")]
+        // POST: api/Publicacion/rechazar/{id}
+        [HttpPost("rechazar/{id}")]
         public async Task<IActionResult> RechazarPublicacion(int id)
         {
-            var resultado = await _publicacionService.RechazarPublicacionAsync(id);
-            if (resultado)
+            var result = await _publicacionService.RechazarPublicacionAsync(id);
+            if (result)
             {
-                return Ok(true);
+                return Ok("Publicación rechazada con éxito.");
             }
-            return NotFound();
+            return BadRequest("Error al rechazar la publicación.");
         }
 
-        // Endpoint para actualizar una publicación
-        [HttpPut("{id}")]
+        // PUT: api/Publicacion/actualizar/{id}
+        [HttpPut("actualizar/{id}")]
         public async Task<IActionResult> ActualizarPublicacion(int id, [FromBody] Publicacion publicacionActualizada)
         {
-            // Llama al método del servicio para actualizar una publicación con el ID
-            var result = await _publicacionService.ActualizarPublicacionAsync(id, publicacionActualizada);
-            if (!result)
+            if (publicacionActualizada == null)
             {
-                return NotFound(); // 404
+                return BadRequest("Los datos de la publicación son nulos.");
             }
-            return Ok(publicacionActualizada); // Retorna la publicación actualizada
+
+            var result = await _publicacionService.ActualizarPublicacionAsync(id, publicacionActualizada);
+            if (result)
+            {
+                return Ok("Publicación actualizada con éxito.");
+            }
+            return BadRequest("Error al actualizar la publicación.");
         }
 
-        // Endpoint para eliminar una publicación
-        [HttpDelete("{id}")]
+        // DELETE: api/Publicacion/eliminar/{id}
+        [HttpDelete("eliminar/{id}")]
         public async Task<IActionResult> EliminarPublicacion(int id)
         {
-            // Llama al método del servicio (Eliminar) para eliminar una publicación con el ID dado
             var result = await _publicacionService.EliminarPublicacionAsync(id);
-            if (!result)
+            if (result)
             {
-                return NotFound();
+                return Ok("Publicación eliminada con éxito.");
             }
-            return Ok();
+            return BadRequest("Error al eliminar la publicación.");
         }
     }
 }

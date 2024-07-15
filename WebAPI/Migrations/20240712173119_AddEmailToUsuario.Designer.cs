@@ -10,7 +10,7 @@ using TestAoniken.Data;
 namespace TestAoniken.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240712172624_AddEmailToUsuario")]
+    [Migration("20240712173119_AddEmailToUsuario")]
     partial class AddEmailToUsuario
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
