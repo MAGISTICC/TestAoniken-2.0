@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
+using System;
 using System.Threading.Tasks;
 using TestAoniken.Models;
 using TestAoniken.Servicios;
@@ -33,24 +33,50 @@ namespace TestAoniken.Controllers
         [HttpPost("aprobar/{id}")]
         public async Task<IActionResult> AprobarPublicacion(int id)
         {
-            var result = await _publicacionService.AprobarPublicacionAsync(id);
-            if (result)
+            try
             {
-                return Ok("Publicación aprobada con éxito.");
+                var result = await _publicacionService.AprobarPublicacionAsync(id);
+                if (result)
+                {
+                    return Ok("Publicación aprobada con éxito.");
+                }
+                return BadRequest("Error al aprobar la publicación.");
             }
-            return BadRequest("Error al aprobar la publicación.");
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch
+            {
+                return StatusCode(500, "Ocurrió un error inesperado.");
+            }
         }
 
         // POST: api/Publicacion/rechazar/{id}
         [HttpPost("rechazar/{id}")]
         public async Task<IActionResult> RechazarPublicacion(int id)
         {
-            var result = await _publicacionService.RechazarPublicacionAsync(id);
-            if (result)
+            try
             {
-                return Ok("Publicación rechazada con éxito.");
+                var result = await _publicacionService.RechazarPublicacionAsync(id);
+                if (result)
+                {
+                    return Ok("Publicación rechazada con éxito.");
+                }
+                return BadRequest("Error al rechazar la publicación.");
             }
-            return BadRequest("Error al rechazar la publicación.");
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch
+            {
+                return StatusCode(500, "Ocurrió un error inesperado.");
+            }
         }
 
         // PUT: api/Publicacion/actualizar/{id}
@@ -62,24 +88,46 @@ namespace TestAoniken.Controllers
                 return BadRequest("Los datos de la publicación son nulos.");
             }
 
-            var result = await _publicacionService.ActualizarPublicacionAsync(id, publicacionActualizada);
-            if (result)
+            try
             {
-                return Ok("Publicación actualizada con éxito.");
+                var result = await _publicacionService.ActualizarPublicacionAsync(id, publicacionActualizada);
+                if (result)
+                {
+                    return Ok("Publicación actualizada con éxito.");
+                }
+                return BadRequest("Error al actualizar la publicación.");
             }
-            return BadRequest("Error al actualizar la publicación.");
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch
+            {
+                return StatusCode(500, "Ocurrió un error inesperado.");
+            }
         }
 
         // DELETE: api/Publicacion/eliminar/{id}
         [HttpDelete("eliminar/{id}")]
         public async Task<IActionResult> EliminarPublicacion(int id)
         {
-            var result = await _publicacionService.EliminarPublicacionAsync(id);
-            if (result)
+            try
             {
-                return Ok("Publicación eliminada con éxito.");
+                var result = await _publicacionService.EliminarPublicacionAsync(id);
+                if (result)
+                {
+                    return Ok("Publicación eliminada con éxito.");
+                }
+                return BadRequest("Error al eliminar la publicación.");
             }
-            return BadRequest("Error al eliminar la publicación.");
+            catch (ArgumentException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch
+            {
+                return StatusCode(500, "Ocurrió un error inesperado.");
+            }
         }
     }
 }
